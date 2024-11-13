@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Shojun`s best project in universe</title>
+    <style>
+        body {
+            font-family: monospace, monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Library</h1>
+
+    <input type="button" value="Clear all" onclick="clearAll()" />
+
+    <div>
+        <h2>My books</h2>
+        <ul id="books"></ul>
+    </div>
+
+    <div>
+        <h2>Add book</h2>
+        <input type="text" id="title" placeholder="Title" value="" required/>
+        <input type="text" id="authtor" placeholder="Authtor" value="" required/>
+        <input type="text" id="pages_count" placeholder="Pages count" value="" required/>
+        <input type="button" id="apply" placeholder="asd" value="Add" onclick="addBook()"/>
+        <p id="exceptionP" style="color: red; font-size: small"></p>
+    </div>
+
+    <h2><a href="/swagger" target="_blank" rel="noopener noreferrer">Swagger</a></h2>
+
+    <script>
+        async function getBooks() {
+            const booksElement = document.getElementById("books");
+            booksElement.innerHTML = "";
+            const response = await fetch("/api/books");
+            const data = await response.json();
+            data.forEach(b => {
+                li = document.createElement("li");
+                li.textContent = `Title: ${b.title} Authtor: ${b.authtor} Pages count: ${b.pages}`;
+                booksElement.appendChild(li);
+            });
+        }
+
+        async function addBook() {
+            const title = document.getElementById("title").value;
+            const authtor = document.getElementById("authtor").value;
+            const pagesCount = document.getElementById("pages_count").value;
+
+            var resp = await fetch(`/api/books/${title}?authtor=${authtor}&pages=${pagesCount}`, { method: "PUT" });
+
+            if (resp.status === 405 || resp.status === 400)
+                document.getElementById("exceptionP").innerHTML = "One of the fields is not filled in";
+            else if (resp.status === 409)
+                document.getElementById("exceptionP").innerHTML = "A book with that title already exists";
+            else {
+                document.getElementById("exceptionP").innerHTML = "";
+                await getBooks();
+            }
+        }
+
+        async function clearAll() {
+            await fetch("/api/books/", { method: "DELETE" });
+            await getBooks();
+        }
+
+        getBooks();
+    </script>
+</body>
+</html>
