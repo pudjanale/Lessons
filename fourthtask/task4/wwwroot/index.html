@@ -21,10 +21,10 @@
 
     <div>
         <h2>Add book</h2>
-        <input type="text" id="title" placeholder="Title" value="" required/>
-        <input type="text" id="authtor" placeholder="Authtor" value="" required/>
-        <input type="text" id="pages_count" placeholder="Pages count" value="" required/>
-        <input type="button" id="apply" placeholder="asd" value="Add" onclick="addBook()"/>
+        <input type="text" id="title" placeholder="Title" value="" required />
+        <input type="text" id="authtor" placeholder="Authtor" value="" required />
+        <input type="text" id="pages_count" placeholder="Pages count" value="" required />
+        <input type="button" id="apply" placeholder="asd" value="Add" onclick="addBook()" />
         <p id="exceptionP" style="color: red; font-size: small"></p>
     </div>
 
@@ -39,6 +39,14 @@
             data.forEach(b => {
                 li = document.createElement("li");
                 li.textContent = `Title: ${b.title} Authtor: ${b.authtor} Pages count: ${b.pages}`;
+
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.onclick = async function () {
+                    await deleteBook(b.title);
+                };
+
+                li.appendChild(deleteButton);
                 booksElement.appendChild(li);
             });
         }
@@ -62,6 +70,11 @@
 
         async function clearAll() {
             await fetch("/api/books/", { method: "DELETE" });
+            await getBooks();
+        }
+
+        async function deleteBook(title) {
+            await fetch(`/api/books/${title}`, { method: "DELETE" });
             await getBooks();
         }
 
